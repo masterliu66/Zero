@@ -1,4 +1,4 @@
-package com.masterliu.zero.search;
+package com.masterliu.zero.algorithm.search;
 
 import net.datafaker.sequence.FakeSequence;
 import net.datafaker.transformations.Field;

@@ -1,4 +1,4 @@
-package com.masterliu.zero.search;
+package com.masterliu.zero.algorithm.search;
 
 import io.vavr.Tuple2;
 

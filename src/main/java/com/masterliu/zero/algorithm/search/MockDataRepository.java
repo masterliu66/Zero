@@ -1,4 +1,4 @@
-package com.masterliu.zero.search;
+package com.masterliu.zero.algorithm.search;
 
 import org.springframework.util.FileCopyUtils;
 
