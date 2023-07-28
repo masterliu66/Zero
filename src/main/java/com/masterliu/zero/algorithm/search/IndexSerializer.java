@@ -2,7 +2,11 @@ package com.masterliu.zero.algorithm.search;
 
 import io.vavr.Tuple2;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class IndexSerializer {
 
@@ -10,19 +14,24 @@ public class IndexSerializer {
 
     public void generateIndex(String indexName, int index) {
 
+        // 每个叶子结点的值以逗号分隔, 并单独成一行
+        StringBuilder builder = new StringBuilder();
         mockDataRepository.writeIndex(() -> {
-            BinarySearchTree binarySearchTree = generateIndex(index);
+            BinarySearchTree binarySearchTree = generateTree(index);
+            AtomicInteger atomicInteger = new AtomicInteger();
+            // 把叶子节点存储的数据单独取出, 并其值指向索引序号
+            binarySearchTree.inorderTraversal(node -> {
+                if (!node.value.isEmpty()) {
+                    String values = node.value.stream().map(String::valueOf).collect(Collectors.joining(","));
+                    builder.append(values).append("\n");
+                    node.value = Collections.singletonList(atomicInteger.getAndIncrement());
+                }
+            });
             return binarySearchTree.root.toString();
-        }, indexName);
-        //        try (FileOutputStream fos = new FileOutputStream("D:/tmp/data/sort/" + indexName + ".obj");
-//             ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-//            oos.writeObject(root);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        }, builder::toString, indexName);
     }
 
-    public BinarySearchTree generateIndex(int index) {
+    public BinarySearchTree generateTree(int index) {
         BinarySearchTree binarySearchTree = new BinarySearchTree();
         for (int i = 0; i < 200; i++) {
             List<String> rows = mockDataRepository.listByPartition(i);
@@ -44,14 +53,6 @@ public class IndexSerializer {
     }
 
     public BinarySearchTree.Node getIndexFromDisk(String indexName) {
-
-//        BinarySearchTree.Node root = null;
-//        try (FileInputStream fis = new FileInputStream("D:/tmp/data/sort/idx_name.obj");
-//             ObjectInputStream ois = new ObjectInputStream(fis)) {
-//            root = (Node) ois.readObject();
-//        } catch (IOException | ClassNotFoundException e) {
-//            e.printStackTrace();
-//        }
         String result = mockDataRepository.findByIndexName(indexName);
         return deserialization(result, 0)._1();
     }

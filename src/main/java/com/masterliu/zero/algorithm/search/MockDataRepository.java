@@ -22,6 +22,8 @@ public class MockDataRepository {
 
     public static final String INDEX_PATH_PREFIX = FOLDER_PATH + "index/";
 
+    public static final String INDEX_DATA_SUFFIX = "_data";
+
     public static final String INDEX_PATH_SUFFIX = ".txt";
 
     public String findById(int id) {
@@ -99,14 +101,35 @@ public class MockDataRepository {
         return result;
     }
 
-    public void writeIndex(Supplier<String> supplier, String indexName) {
-        String path = INDEX_PATH_PREFIX + indexName + INDEX_PATH_SUFFIX;
+    public String findLeafNodeByIndexName(String indexName, int row) {
+
+        try (FileReader reader = new FileReader(INDEX_PATH_PREFIX + indexName + INDEX_DATA_SUFFIX + INDEX_PATH_SUFFIX);
+             LineNumberReader lineNumberReader = new LineNumberReader(reader)) {
+            String line;
+            while ((line = lineNumberReader.readLine()) != null) {
+                if (lineNumberReader.getLineNumber() == row + 1) {
+                    return line;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public void writeIndex(Supplier<String> supplier, Supplier<String> leafNodeSupplier, String indexName) {
+        writeString(supplier.get(), INDEX_PATH_PREFIX + indexName + INDEX_PATH_SUFFIX);
+        writeString(leafNodeSupplier.get(), INDEX_PATH_PREFIX + indexName + INDEX_DATA_SUFFIX + INDEX_PATH_SUFFIX);
+    }
+
+    private void writeString(String str, String path) {
         File file = new File(path);
         if (file.exists()) {
             return;
         }
         try {
-            FileCopyUtils.copy(supplier.get(), new FileWriter(file));
+            FileCopyUtils.copy(str, new FileWriter(file));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -3,6 +3,7 @@ package com.masterliu.zero.algorithm.search;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class BinarySearchTree {
 
@@ -60,10 +61,15 @@ public class BinarySearchTree {
                     node = node.right;
                 }
             }
-            node.isEnd = true;
         }
+        // 标记字符结束
+        node.isEnd = true;
         // 叶子结点添加行编号的值
         node.value.add(primaryKey);
+    }
+
+    public void inorderTraversal(Consumer<Node> consumer) {
+        root.inorderTraversal(consumer);
     }
 
     public static class Node implements Serializable {
@@ -75,6 +81,24 @@ public class BinarySearchTree {
         Node right;
         public Node() {
             this.value = new ArrayList<>();
+        }
+
+        public boolean isLeaf() {
+            return left == null && right == null;
+        }
+
+        public boolean isEnd() {
+            return isEnd;
+        }
+
+        public void inorderTraversal(Consumer<Node> consumer) {
+            if (left != null) {
+                left.inorderTraversal(consumer);
+            }
+            consumer.accept(this);
+            if (right != null) {
+                right.inorderTraversal(consumer);
+            }
         }
 
         @Override

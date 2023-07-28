@@ -6,33 +6,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class DataSearchTest {
 
     public static void main(String[] args) {
 
-        String[] searchKeys = {"宇文昊然", "王耀杰", "许思聪"};
+        String[] searchKeys = {"宇文", "王耀杰", "许思聪"};
 
         DataSearchTest test = new DataSearchTest();
 
+        print("全表扫描", () -> test.violentSearch(false, searchKeys));
+        print("索引扫描 + 回表", () -> test.binarySearch(false, false, searchKeys));
+        print("索引扫描 + 覆盖索引", () -> test.binarySearch(true, false, searchKeys));
+        print("后模糊匹配全表扫描", () -> test.violentSearch(true, searchKeys));
+        print("后模糊匹配(前缀索引扫描) + 回表", () -> test.binarySearch(false, true, searchKeys));
+    }
+
+    public static void print(String name, Supplier<List<String>> supplier) {
         StopWatch watch = new StopWatch();
+        // 全表扫描
         watch.start();
-        List<String> result = test.binarySearch(true, searchKeys);
+        List<String> result = supplier.get();
         watch.stop();
-        System.out.println(watch.getLastTaskTimeMillis());
-        System.out.println(result);
-
-        watch.start();
-        result = test.binarySearch(false, searchKeys);
-        watch.stop();
-        System.out.println(watch.getLastTaskTimeMillis());
-        System.out.println(result);
-
-        watch.start();
-        result = test.violentSearch(searchKeys);
-        watch.stop();
-        System.out.println(watch.getLastTaskTimeMillis());
+        System.out.println(name + "耗时: " + watch.getLastTaskTimeMillis());
         System.out.println(result);
     }
 
@@ -51,25 +49,45 @@ public class DataSearchTest {
         this.binarySearchTree = this.indexSerializer.getNameIndexFromDisk();
     }
 
-    public List<String> binarySearch(boolean useIndex, String... searchNames) {
+    public List<String> binarySearch(boolean useIndex, boolean fuzzyLogic, String... searchNames) {
         List<String> results = new ArrayList<>();
         for (String str : searchNames) {
             BinarySearchTree.Node node = binarySearchTree.binarySearch(str);
-            if (node.value.isEmpty()) {
+            if (node == null) {
                 continue;
             }
-            for (Integer primaryKey : node.value) {
-                if (useIndex) {
-                    results.add(primaryKey + "," + str);
-                } else {
-                    results.add(mockDataRepository.findById(primaryKey));
+            List<Integer> indexes = new ArrayList<>();
+            if (fuzzyLogic) {
+                if (!node.value.isEmpty()) {
+                    indexes.add(node.value.get(0));
+                }
+                // 后模糊匹配的情况
+                if (!node.isEnd()) {
+                    node.inorderTraversal(child -> {
+                        if (!child.value.isEmpty()) {
+                            indexes.add(child.value.get(0));
+                        }
+                    });
+                }
+            }
+            if (!fuzzyLogic && node.isEnd() && !node.value.isEmpty()) {
+                indexes.add(node.value.get(0));
+            }
+            for (Integer index : indexes) {
+                String result = mockDataRepository.findLeafNodeByIndexName("idx_name", index);
+                for (String primaryKey : result.split(",")) {
+                    if (useIndex) {
+                        results.add(primaryKey + "," + str);
+                    } else {
+                        results.add(mockDataRepository.findById(Integer.parseInt(primaryKey)));
+                    }
                 }
             }
         }
         return results;
     }
 
-    public List<String> violentSearch(String... searchNames) {
+    public List<String> violentSearch(boolean fuzzyLogic, String... searchNames) {
 
         Set<String> names = Arrays.stream(searchNames).collect(Collectors.toSet());
 
@@ -80,8 +98,16 @@ public class DataSearchTest {
             for (String row : rows) {
                 // 通过Csv模板生成的数据每个字段用逗号分隔, 其中第2个字段为name
                 String[] cols = row.split(",");
-                if (names.contains(cols[1])) {
-                    results.add(row);
+                if (fuzzyLogic) {
+                    for (String name : names) {
+                        if (cols[1].startsWith(name)) {
+                            results.add(row);
+                        }
+                    }
+                } else {
+                    if (names.contains(cols[1])) {
+                        results.add(row);
+                    }
                 }
             }
         }
