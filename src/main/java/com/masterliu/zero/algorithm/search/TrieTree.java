@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-public class BinarySearchTree {
+public class TrieTree {
 
     Node root;
 
-    public BinarySearchTree() {
+    public TrieTree() {
         this.root = new Node();
     }
 
@@ -17,7 +17,7 @@ public class BinarySearchTree {
         return root;
     }
 
-    public Node binarySearch(String str) {
+    public Node search(String str) {
         Node node = root;
         for (int i = 0; i < str.length(); i++) {
             int codePoint = str.charAt(i);

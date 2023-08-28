@@ -18,10 +18,10 @@ public class DataSearchTest {
         DataSearchTest test = new DataSearchTest();
 
         print("全表扫描", () -> test.violentSearch(false, searchKeys));
-        print("索引扫描 + 回表", () -> test.binarySearch(false, false, searchKeys));
-        print("索引扫描 + 覆盖索引", () -> test.binarySearch(true, false, searchKeys));
+        print("索引扫描 + 回表", () -> test.search(false, false, searchKeys));
+        print("索引扫描 + 覆盖索引", () -> test.search(true, false, searchKeys));
         print("后模糊匹配全表扫描", () -> test.violentSearch(true, searchKeys));
-        print("后模糊匹配(前缀索引扫描) + 回表", () -> test.binarySearch(false, true, searchKeys));
+        print("后模糊匹配(前缀索引扫描) + 回表", () -> test.search(false, true, searchKeys));
     }
 
     public static void print(String name, Supplier<List<String>> supplier) {
@@ -38,7 +38,7 @@ public class DataSearchTest {
 
     IndexSerializer indexSerializer = new IndexSerializer();
 
-    BinarySearchTree binarySearchTree;
+    TrieTree trieTree;
 
     public DataSearchTest() {
         init();
@@ -46,13 +46,13 @@ public class DataSearchTest {
 
     private void init() {
         this.indexSerializer.generateIndex("idx_name", 1);
-        this.binarySearchTree = this.indexSerializer.getNameIndexFromDisk();
+        this.trieTree = this.indexSerializer.getNameIndexFromDisk();
     }
 
-    public List<String> binarySearch(boolean useIndex, boolean fuzzyLogic, String... searchNames) {
+    public List<String> search(boolean useIndex, boolean fuzzyLogic, String... searchNames) {
         List<String> results = new ArrayList<>();
         for (String str : searchNames) {
-            BinarySearchTree.Node node = binarySearchTree.binarySearch(str);
+            TrieTree.Node node = trieTree.search(str);
             if (node == null) {
                 continue;
             }
