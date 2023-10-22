@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.masterliu.zero.mybatis.mapper.PersonMapper">
+
+    <select id="selectByCondition" resultType="com.masterliu.zero.mybatis.entity.Person">
+        SELECT id, `name`, age, mobile, is_deleted
+        FROM person
+        <where>
+            <if test="params.id != null">
+                AND id = #{params.id}
+            </if>
+            <if test="params.name != null">
+                AND `name` = #{params.name}
+            </if>
+            <if test="params.age != null">
+                AND age = #{params.age}
+            </if>
+            <if test="params.mobile != null">
+                AND mobile = #{params.mobile}
+            </if>
+            <if test="params.isDeleted != null">
+                AND is_deleted = #{params.isDeleted}
+            </if>
+        </where>
+    </select>
+
+</mapper>
