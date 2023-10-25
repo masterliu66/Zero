@@ -24,6 +24,9 @@ public class Demo {
         );
     }
 
+    /**
+     * 数组A给定一些1~9的数。返回由A数组中的元素组成的小于n的最大数。例如A={1,24,9}，x=2533，返回2499
+     */
     @ParameterizedTest
     @MethodSource("testcase")
     void test(int n, int[] arr, int ans)  {
@@ -41,25 +44,19 @@ public class Demo {
             return -1;
         }
 
-        String str = String.valueOf(n);
-        int[] digits = new int[str.length()];
-        for (int i = 0; i < digits.length; i++) {
-            digits[i] = Integer.parseInt(String.valueOf(str.charAt(i)));
-        }
-
         StringBuilder builder = new StringBuilder();
-        backtracking(arr, digits, n, builder);
+        backtracking(arr, n, String.valueOf(n).length(), builder);
 
         return max;
     }
 
-    private void backtracking(int[]arr, int[] digits, int n, StringBuilder current) {
+    private void backtracking(int[]arr, int n, int length, StringBuilder current) {
 
-        if (current.length() > digits.length) {
+        if (current.length() > length) {
             return;
         }
         // 小于n的数位直接跳过
-        if (current.length() >= Math.max(digits.length - 1, 1)) {
+        if (current.length() >= Math.max(length - 1, 1)) {
             int num = Integer.parseInt(current.toString());
             if (num >= n) {
                 return;
@@ -70,7 +67,7 @@ public class Demo {
         for (int num : arr) {
             // 选择当前数
             current.append(num);
-            backtracking(arr, digits, n, current);
+            backtracking(arr, n, length, current);
             current.deleteCharAt(current.length() - 1);
         }
     }

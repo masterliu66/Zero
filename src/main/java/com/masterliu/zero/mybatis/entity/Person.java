@@ -59,4 +59,15 @@ public class Person {
     public void setIsDeleted(Long isDeleted) {
         this.isDeleted = isDeleted;
     }
+
+    @Override
+    public String toString() {
+        return "Person{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", mobile='" + mobile + '\'' +
+                ", isDeleted=" + isDeleted +
+                '}';
+    }
 }

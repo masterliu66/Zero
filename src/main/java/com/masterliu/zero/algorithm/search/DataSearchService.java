@@ -9,29 +9,16 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-public class DataSearchTest {
+public class DataSearchService {
 
-    public static void main(String[] args) {
-
-        String[] searchKeys = {"宇文", "王耀杰", "许思聪"};
-
-        DataSearchTest test = new DataSearchTest();
-
-        print("全表扫描", () -> test.violentSearch(false, searchKeys));
-        print("索引扫描 + 回表", () -> test.search(false, false, searchKeys));
-        print("索引扫描 + 覆盖索引", () -> test.search(true, false, searchKeys));
-        print("后模糊匹配全表扫描", () -> test.violentSearch(true, searchKeys));
-        print("后模糊匹配(前缀索引扫描) + 回表", () -> test.search(false, true, searchKeys));
-    }
-
-    public static void print(String name, Supplier<List<String>> supplier) {
+    public void print(String name, Supplier<List<String>> supplier) {
         StopWatch watch = new StopWatch();
         // 全表扫描
         watch.start();
         List<String> result = supplier.get();
         watch.stop();
         System.out.println(name + "耗时: " + watch.getLastTaskTimeMillis());
-        System.out.println(result);
+//        System.out.println(result);
     }
 
     MockDataRepository mockDataRepository = new MockDataRepository();
@@ -40,7 +27,7 @@ public class DataSearchTest {
 
     TrieTree trieTree;
 
-    public DataSearchTest() {
+    public DataSearchService() {
         init();
     }
 

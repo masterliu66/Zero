@@ -1,6 +1,6 @@
-package com.masterliu.zero.design.proxy;
+package com.masterliu.zero.common.utils;
 
-import com.masterliu.zero.common.utils.XmlDriver;
+import com.masterliu.zero.design.proxy.JdkDynamicProxy;
 import org.apache.ibatis.reflection.ParamNameResolver;
 import org.apache.ibatis.session.Configuration;
 
