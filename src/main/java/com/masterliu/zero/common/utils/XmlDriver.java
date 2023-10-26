@@ -10,6 +10,7 @@ import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.parsing.XNode;
 import org.apache.ibatis.parsing.XPathParser;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.ParamNameResolver;
 import org.apache.ibatis.scripting.LanguageDriver;
 import org.apache.ibatis.scripting.xmltags.XMLLanguageDriver;
 import org.apache.ibatis.session.Configuration;
@@ -19,6 +20,7 @@ import org.springframework.util.ResourceUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -32,10 +34,11 @@ public class XmlDriver {
     private final String methodName;
     private final Object parameterObject;
 
-    public XmlDriver(String xmlName, String methodName, Object parameterObject) {
-        this.xmlName = xmlName;
-        this.methodName = methodName;
-        this.parameterObject = parameterObject;
+    public XmlDriver(Method method, Object[] args) {
+        this.xmlName = MAPPER_PATH + "/" + method.getDeclaringClass().getSimpleName() + ".xml";
+        this.methodName = method.getName();
+        ParamNameResolver resolver = new ParamNameResolver(new Configuration(), method);
+        this.parameterObject = resolver.getNamedParams(args);
     }
 
     public void parse() throws IOException, SQLException {
