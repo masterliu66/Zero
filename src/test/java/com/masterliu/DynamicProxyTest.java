@@ -10,14 +10,6 @@ public class DynamicProxyTest {
 
     @Test
     public void testJdkProxy() {
-        System.out.println("============CglibDynamicProxy============");
-        CglibDynamicProxy<Dog> cglibDynamicProxy = new CglibDynamicProxy<>();
-        Dog dog = cglibDynamicProxy.getProxy(Dog.class);
-        dog.say();
-    }
-
-    @Test
-    public void testCglibProxy() {
         System.out.println("============JdkDynamicProxy============");
         Animal animal = new Dog();
         Animal proxy = new JdkDynamicProxy<>(animal).getProxy(Animal.class);
@@ -25,6 +17,14 @@ public class DynamicProxyTest {
         System.out.println("============JdkDynamicProxy(无实例代理)============");
         proxy = new JdkDynamicProxy<>((Animal) null).getProxy(Animal.class);
         proxy.say();
+    }
+
+    @Test
+    public void testCglibProxy() {
+        System.out.println("============CglibDynamicProxy============");
+        CglibDynamicProxy<Dog> cglibDynamicProxy = new CglibDynamicProxy<>();
+        Dog dog = cglibDynamicProxy.getProxy(Dog.class);
+        dog.say();
     }
 
 }
