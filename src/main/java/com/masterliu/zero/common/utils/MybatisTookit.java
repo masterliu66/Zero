@@ -61,7 +61,6 @@ public class MybatisTookit {
             throw new ApplicationException(e);
         }
         SqlSessionTemplate sqlSessionTemplate = new SqlSessionTemplate(sqlSessionFactory);
-//        TransactionSynchronizationManager.initSynchronization();
         return sqlSessionTemplate.getMapper(clz);
     }
 
